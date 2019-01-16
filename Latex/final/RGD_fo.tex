@@ -1,0 +1,31 @@
+\begin{table}[htbp]
+\caption{Perfomance of first order methods on randomly generated data}
+\label{RGD_fo}
+\centering
+\begin{tabular} {|c|c|c|c|c|c|c|} 
+\hline
+\multicolumn{2}{|c|}{method}&prim(M)&ADMM-p&ADMM-d&ADMM-s&BADMM\\\hline
+\multirow{4}*{\makecell{$m=128$\\$n=128$}} 
+&time(s) & 0.10 & 2.44 & 1.01 & 3.50 & 1.91 \\\cline{2-7}
+&iter & 1488 & 13405 & 5534 & 3466 & 7640 \\\cline{2-7}
+&objval & 1.36e+00 & -3.29e-06 & 1.32e-05 & 4.10e-06 & 3.26e-05 \\\cline{2-7}
+&vltcst & 1.11e-05 & 5.00e-07 & 1.99e-04 & 8.29e-08 & 1.95e-05 \\\hline
+\multirow{4}*{\makecell{$m=256$\\$n=256$}} 
+&time(s) & 0.20 & 9.00 & 5.92 & 40.22 & 9.75 \\\cline{2-7}
+&iter & 4708 & 17525 & 12309 & 11542 & 9986 \\\cline{2-7}
+&objval & 1.63e+00 & -9.92e-06 & -6.07e-06 & -8.76e-06 & 5.88e-05 \\\cline{2-7}
+&vltcst & 3.62e-05 & 5.00e-07 & 2.00e-04 & 9.51e-08 & 1.94e-05 \\\hline
+
+\multirow{4}*{\makecell{$m=512$\\$n=512$}} 
+&time(s) & 0.97 & 47.85 & 41.07 & 187.57 & 76.40 \\\cline{2-7}
+&iter & 11742 & 14719 & 15561 & 11863 & 12732 \\\cline{2-7}
+&objval & 1.57e+00 & -3.16e-05 & -3.88e-05 & -4.46e-05 & 8.87e-06 \\\cline{2-7}
+&vltcst & 9.14e-05 & 5.00e-07 & 2.00e-04 & 9.89e-08 & 4.35e-05 \\\hline
+
+\multirow{4}*{\makecell{$m=1024$\\$n=1024$}} 
+&time(s) & 5.68 & 205.60 & 232.08 & 902.93 & 432.45 \\\cline{2-7}
+&iter & 28914 & 14403 & 20000 & 13163 & 15564 \\\cline{2-7}
+&objval & 1.94e+00 & -1.10e-04 & -1.18e-04 & -1.18e-04 & -9.02e-05 \\\cline{2-7}
+&vltcst & 2.31e-04 & 5.00e-07 & 2.76e-04 & 9.94e-08 & 6.34e-05 \\\hline
+\end{tabular}
+\end{table}

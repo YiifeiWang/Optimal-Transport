@@ -1,0 +1,401 @@
+\documentclass[english]{pkupaper}
+
+\usepackage{lipsum}
+\usepackage{essay-def}
+\usepackage{clrscode}
+\usepackage{appendix}
+\usepackage{mathrsfs}
+\newcommand{\ind}{\ \ \ }
+\newenvironment{eqt}{\begin{equation}\begin{aligned}}{\end{aligned}\end{equation}}
+\usepackage{indentfirst}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{multirow}
+\usepackage{makecell}
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\renewcommand{\algorithmicensure}{\textbf{Output:}}
+
+\newcommand{\titlemark}{Final Report: Algorithms for large-scale optimal transport}
+
+\DeclareRobustCommand{\authorthing}{
+\begin{tabular}{cc}
+汪祎非\thanks{The authors are arranged lexicographically.} & 朱峰\thanksmark{1} \\
+1500010611 & 1600010643 
+\end{tabular}
+}
+\title{\titlemark}
+\author{\authorthing}
+\date{}
+\bibliography{DeepL}
+\begin{document}
+\maketitle
+\section*{Statement}
+The main content of this project is not used as course project or assignment in other courses.
+
+\section{Introduction}
+According to \cite{COT}, optimal transport is a mathematical gem at the interface between probability, analysis and optimization. The theoretical importance of OT is that it defines a metric between probability distributions, namely, Wasserstein metric. It reveals a canonical geometric structure with rich properties to be exploited.  The earliest contribution to OT originated from Monge in 18th century. Kantorovich rediscovered it under a different formalism, namely the Linear Programming formulation of OT. With the development of scalable solvers, OT is widely applied to problems in imaging sciences(color and texture processing), computer vision and machine learning(regression).
+
+In this report, we focus on the LP formulation and the Entropy Regularization of optimal transport. Our report is organized as follows. In Section \ref{sec:2}, we propose three first-order methods and introduce Bregman ADMM. In Appendix we also introduce a splitting method with penalty functions. The Entropy Regularization of optimal transport and Sinkhorn's algorithm is presented in Section \ref{sec:3}. We further propose an improvement of Sinkhorn's algorithm and ADMM for Entropy Regularization. Section \ref{sec:4} presents five datasets and contains comprehensive numerical experiments. In Section \ref{sec:5}, we conclude our work. 
+
+Question 1(a) is answered in Section 4.2. Question 1(b) is answered in Section 2. Question 2 is answered in Section 3. The numerical results of all questions are provided in Section 4. The division of our work is listed in Acknowledgement (in the end of our report).
+
+\section{First Order Methods for Optimal Transport}
+\label{sec:2}
+We consider to solve the standard form of Linear Programming (LP).
+\begin{equation}
+\label{lp}
+\begin{aligned}
+\min\limits_{\pi\in\mbR^{m\times n}}&\sum_{i=1}^m\sum_{j=1}^nC_{i,j}\pi_{i,j}\\
+s.t.&\sum_{j=1}^n\pi_{i,j}=\mu_i, \, \forall i=1, 2, \dots m\\
+&\sum_{i=1}^m\pi_{i,j}=\nu_j , \, \forall j=1, 2, \dots n\\
+&\pi_{i,j}\geqslant0 
+\end{aligned}
+\end{equation}
+To ensure that the feasible set for problem \ref{lp} is non-empty, we assume that $\mu_i\geqslant 0, \nu_j\geqslant0$ and $\sum_{i=1}^m\mu_i=\sum_{j=1}^n\nu_j$. Without loss of generality, we further assume $C_{i,j}\geqslant 0$ and $\sum_{i=1}^m\mu_i=\sum_{j=1}^n\nu_j=1$. Else we could add a positive constant on $C_{i, j}$ and divide $\mu_i$ and $\nu_j$ by $\sum_{i=1}^m\mu_i=\sum_{j=1}^n\nu_j$.
+
+\subsection{ADMM: Complete Splitting}
+\subsubsection{ADMM for primal}
+We introduce a new variable $\tilde \pi \in \mbR^{m\times n}$ and split the constraints into two sets $\{\pi\in \mbR^{m\times n}| \sum_{j=1}^n\pi_{i,j}=\mu_i, \sum_{i=1}^m\pi_{i,j}=\nu_j\}$ and $\{\tilde\pi\in \mbR^{m\times n}|\tilde\pi\geq0\}$. Then we rewrite the LP problem \ref{lp} in the following form,
+\begin{equation}
+\label{new_lp}
+\begin{aligned}
+\min\limits_{\pi\in\mbR^{m\times n}}&\sum_{i=1}^m\sum_{j=1}^nC_{i,j}\pi_{i,j}\\
+\text{s.t.}&\sum_{j=1}^n\pi_{i,j}=\mu_i,\quad \sum_{i=1}^m\pi_{i,j}=\nu_j\\
+&\pi_{i,j} = \tilde\pi_{i,j}, \quad \tilde\pi_{i,j}\geqslant0 
+\end{aligned}
+\end{equation}
+Then we write down its augmented Lagrangian function as follows,
+\begin{eqt}
+&L_t(\pi, \tilde{\pi}, \gamma, \lambda, \omega) \\
+= &  \sum_{i, j}C_{i,j}\pi_{i,j} + \sum_{i}\gamma_i(\mu_i-\sum_{j}\pi_{i,j}) + \sum_{j}\lambda_j(\nu_j-\sum_i\pi_{i,j}) + \sum_{i, j}\omega_{i,j}(\tilde{\pi}_{i,j}-\pi_{i,j}) \\
+&+ \frac{t}{2}\left(\sum_{i}(\mu_i-\sum_{j}\pi_{i,j})^2 + \sum_{j}(\nu_j-\sum_{i}\pi_{i,j})^2 + \sum_{i, j}(\tilde{\pi}_{i,j}-\pi_{i,j})^2\right)
+\end{eqt}
+where $\gamma\in\mathbb{R}^{m\times 1}, \lambda\in\mathbb{R}^{1\times n}, \omega\in\mathbb{R}^{m\times n}, \tilde{\pi}\in\mathbb{R}^{m\times n}, \tilde{\pi}_{i,j}\geqslant 0$. 
+
+For the update of $\pi_{i,j}$, since $L$ is strongly convex with $\pi_{i,j}$, we set $\frac{\partial L}{\partial \pi_{ij}}$ to zero and yields
+\begin{eqt}
+\pi_{i,j} + \sum_{k}\pi_{i,k} + \sum_{k}\pi_{k,j} = \frac{1}{t}(\gamma_{i}+\lambda_{j}+\omega_{i,j}-c_{i,j}) + \mu_{i} + \nu_{j} + \tilde{\pi}_{i,j}\triangleq x_{i,j} \label{pi}
+\end{eqt}
+Though a bit complicated, (\ref{pi}) can be solved in closed form, 
+\begin{eqt}
+\label{upd_pi}
+\pi_{i,j} \gets x_{i,j} & - \frac{1}{m+1}\left(\sum_kx_{k,j} - \frac{1}{m+n+1}\sum_{k, l}x_{k,l}\right)
+\\& - \frac{1}{n+1}\left(\sum_kx_{i,k}-\frac{1}{m+n+1}\sum_{k, l}x_{k,l}\right)
+\end{eqt}
+
+To update $\tilde{\pi}_{i,j}$, it's easy to compute that
+\begin{eqt}
+\label{upd_pit}
+\tilde{\pi}_{i,j} \gets (\pi_{i,j}-\frac{\omega_{i,j}}{t})_+
+\end{eqt}
+
+For the update of multipliers, we have 
+\begin{eqt}
+& \gamma_{i} \gets \gamma_i + t(\mu_i - \sum_k\pi_{i,k}) \\
+& \lambda_{j} \gets \lambda_j + t(\nu_j - \sum_k\pi_{k,j}) \\
+& \omega_{i, j} \gets \omega_{i, j} + t(\tilde{\pi}_{i, j} - \pi_{i, j}) \label{multiplier}
+\end{eqt}
+
+We thus can obtain the following Algorithm \ref{alg:ADMM}.
+
+\begin{algorithm}
+\caption{ADMM for Optimal Transport}
+\label{alg:ADMM}
+\begin{algorithmic}[1]
+\REQUIRE {$C\in\mbR^{m\times n}$, $\mu\in\mbR^m$, $\nu\in\mbR^n$, $t\in \mathbb{R}^+$}
+\STATE $\pi, \tilde{\pi}, \gamma, \lambda, \omega\gets 0$
+\WHILE {\text{not converge}} 
+	\STATE Update $\pi$ by \ref{upd_pi}
+	\STATE Update $\tilde\pi$ by \ref{upd_pit}
+	\STATE Update $\gamma, \lambda, \omega$  by \ref{multiplier}
+\ENDWHILE
+\RETURN $\pi$
+\end{algorithmic}
+\end{algorithm}
+
+\subsubsection{ADMM for dual}
+
+We also derive and implement an ADMM for dual problem of Optimal Transport. The Lagrangian of \ref{lp} is given by
+\begin{eqt}
+&\min_{\pi}\max_{\omega\geqslant 0, \gamma, \lambda}L(\pi, \gamma, \lambda, \omega) \\
+= &  \sum_{i, j}C_{i,j}\pi_{i,j} - \sum_i\gamma_i(\mu_i-\sum_{j}\pi_{i,j}) - \sum_j\lambda_j(\nu_j-\sum_i\pi_{i,j}) - \sum_{i, j}\omega_{i,j}\pi_{i,j}\label{primallagrangian}
+\end{eqt} 
+
+However, the first two constraints in \ref{new_lp} are linearly dependent. More rigorously, one constraint can be removed since $\sum_{i=1}^m\mu_i = \sum_{j=1}^n\nu_j$. Thus, we impose another constraint on the dual variables in \ref{primallagrangian}, namely, $\lambda_n=0$. 
+
+Calculating $\max_{\omega\geqslant 0, \gamma, \lambda}\min_{\pi_{i, j}}L(\pi, \gamma, \lambda, \omega)$ yields the dual problem
+\begin{eqt}
+\max_{\gamma, \lambda}&\ -\sum_i\gamma_i\mu_i - \sum_j\lambda_j\nu_j \\
+\text{s.t.}&\ C_{i, j}+\gamma_i+\lambda_j\geqslant 0 \\
+&\ \lambda_{n} = 0 \label{dual}
+\end{eqt}
+which is equivalent to 
+
+\begin{eqt}
+\min_{\gamma, \lambda}&\ \sum_i\gamma_i\mu_i + \sum_j\lambda_j\nu_j \\
+\text{s.t.}&\ C_{i, j}+\gamma_i+\lambda_j\geqslant 0 \\
+&\ \lambda_n=0 \label{dual2}
+\end{eqt}
+
+Similar to that in Section (2.1.1), we introduce a new variable $ z_{i, j} \in \mbR^{m\times n}$ and split the constraints into two sets $\{\gamma\in \mbR^{m\times 1}, \lambda\in \mbR^{1\times n}| C_{i, j}+\gamma_i+\lambda_j=z_{i, j}\}$ and $\{z_{i, j}\in \mbR^{m\times n}|z_{i, j}\geqslant0\}$. We can now write down its augmented Lagrangian function,
+\begin{eqt}
+L_t(\gamma, \lambda, \omega, z, \tilde z) = &\sum_i\gamma_i\mu_i + \sum_j\lambda_j\nu_j + \omega_{i, j}(C_{i, j}+\gamma_i+\lambda_j-z_{i, j}) \\&+ \frac{t}{2}\sum_{i, j}(C_{i, j}+\gamma_i+\lambda_j-z_{i, j})^2
+\label{alf-dual}
+\end{eqt}
+where $\gamma\in\mathbb{R}^{m\times 1}, \lambda\in\mathbb{R}^{1\times n}, \omega\in\mathbb{R}^{m\times n}, z\in\mathbb{R}^{m\times n}, z_{i,j}\geqslant 0, \lambda_n=0$. In LP problems, ``dual of dual" is primal, and $\omega$ has direct relation with $\pi$. In fact, if we ignore the quadratic term in \ref{alf-dual}, we can find that $\omega = -\pi$. This imples that $-\omega$ can be interpreted as an approximation to $\pi$ in the primal problem.
+
+For the update of $z_{i, j}$, we have
+\begin{eqt}
+z_{i, j}\gets \max\{C_{i, j}+\gamma_i+\lambda_j+\frac{\omega_{i, j}}{t}, 0\} \label{splitvarupdate}
+\end{eqt}
+
+For the update of $\gamma$ and $\lambda$, we set $\frac{\partial L}{\partial \gamma_i}$ and $\frac{\partial L}{\partial \lambda_j}$ to zero and yield
+\begin{eqt}
+n\gamma_i+\sum_j\lambda_j = \sum_jz_{i, j}-\sum_jC_{i, j}-\frac{1}{t}(\mu_i+\sum_j\omega_{i, j})&\triangleq a_i\ (i=1, ..., m)\\
+m\lambda_j + \sum_i\gamma_i = \sum_iz_{i, j} - \sum_iC_{i, j} - \frac{1}{t}(\nu_j+\sum_i\omega_{i, j})&\triangleq b_j\ (j=1, ..., n-1) \label{equation}
+\end{eqt}
+
+Thanks for $\lambda_n=0$, \ref{equation} has a unique solution:
+\begin{eqt}
+&\gamma_i \gets \frac{1}{n}\left(a_i-\sum_ia_i+\sum_jb_j\right)\ (i=1, ..., m)\\
+&\lambda_j \gets \frac{1}{m}\left(b_j - \frac{n}{m}\sum_jb_j+\frac{n-1}{m}\sum_ia_i\right)\ (j=1, ..., n-1). \label{dualupdate}
+\end{eqt}
+
+For the update of multipliers, it's easy to obtain that
+\begin{eqt}
+\omega_{i, j}\gets \omega_{i, j}+t(C_{i, j}+\gamma_i+\lambda_j-z_{i, j}). \label{multiplierupdate}
+\end{eqt}
+
+We thus can obtain the following Algorithm \ref{alg:ADMM-dual}.
+
+\begin{algorithm}
+\caption{ADMM for Dual of Optimal Transport}
+\label{alg:ADMM-dual}
+\begin{algorithmic}[1]
+\REQUIRE {$C\in\mbR^{m\times n}$, $\mu\in\mbR^m$, $\nu\in\mbR^n$, $t\in \mathbb{R}^+$}
+\STATE $\gamma, \lambda, \omega\gets 0$
+\WHILE {\text{not converge}} 
+	\STATE Update $\gamma, \lambda$ by \ref{dualupdate}
+	\STATE Update $z$ by \ref{splitvarupdate}
+	\STATE Update $\omega$  by \ref{multiplierupdate}
+\ENDWHILE
+\RETURN $-\omega$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{ADMM: Simplex Splitting}
+\label{sec:2.2}
+We still focus on the primal problem, but this time, we utilize another splitting method. We rewrite the problem \ref{lp} as follows,
+\begin{eqt}
+\min_{\pi\in\mathbb{R}^{m\times n}}&\ \sum_{i=1}^m\sum_{j=1}^nC_{i, j}\pi_{i, j} \\
+\text{s.t.}&\ \sum_{j}\pi_{i, j} = \mu_i,\ \sum_{i}\tilde{\pi}_{i, j} = \nu_j \\
+&\ \pi_{i, j} = \tilde{\pi}_{i, j}\geqslant 0
+\end{eqt}
+The augmented Lagrangian function can be written as
+\begin{eqt}
+L_t(\pi, \tilde{\pi}, \omega) = & \sum_{i, j}C_{i, j}\frac{\pi_{i, j} + \tilde{\pi}_{i, j}}{2} + \sum_{i, j}\omega_{i, j}(\pi_{i, j} - \tilde{\pi}_{i, j}) + \frac{t}{2}\sum_{i, j}(\pi_{i, j}-\tilde{\pi}_{i, j})^2 \\
+\text{s.t.}\ & \sum_{j}\pi_{i, j} = \mu_i,\ \pi_{i, j} \geqslant 0 \\
+& \sum_{i}\tilde{\pi}_{i, j} = \nu_j,\ \tilde{\pi}_{i, j}\geqslant 0
+\end{eqt} 
+
+For update of $\pi$, we need to solve the following subproblem, i.e., the projection on a simplex,
+\begin{eqt}
+&\min_{\pi}\ \sum_{i, j}\left(\pi_{i, j} - \tilde{\pi}_{i, j}+\frac{1}{t}\left(\omega_{i, j} + \frac{C_{i, j}}{2}\right)\right)^2 \\
+&\text{s.t.}\ \sum_{j}\pi_{i, j} = \mu_i, \ \pi_{i, j} \geqslant 0 \label{projpro}
+\end{eqt}
+
+From standard duality theory and with some calculation, we can derive that the solution must be the form 
+\begin{eqt}
+\pi_{i, j}\gets \max\{\tilde{\pi}_{i, j}-\frac{1}{t}\left(\omega_{i, j}+\frac{C_{i, j}}{2}\right)+\lambda_i, 0\} \triangleq \pi_{i, j}(\lambda_i) \label{projup}
+\end{eqt}
+where $\lambda_i$ is chosen such that 
+\begin{eqt}
+\sum_{j}\pi_{i, j}(\lambda_i) = \mu_i. \label{cst1}
+\end{eqt}
+
+Similarly, the update of $\tilde{\pi}$ can be written as
+\begin{eqt}
+\tilde{\pi}_{i, j} \gets \max\{\pi_{i, j}-\frac{1}{t}\left(\omega_{i, j}-\frac{C_{i, j}}{2}\right)+\tilde\lambda_j, 0\} \triangleq \tilde{\pi}_{i, j}(\tilde\lambda_j) \label{projup2}
+\end{eqt}
+where $\tilde\lambda_j$ is chosen such that 
+\begin{eqt}
+\sum_{i}\tilde\pi_{i, j}(\tilde\lambda_j) = \nu_j. \label{cst2}
+\end{eqt}
+
+We now briefly describe an algorithm mentioned in \cite{projection} to find the exact value of $\lambda$. For simplicity of statement, we consider the following problem, which is the canonical form of \ref{projpro},
+\begin{eqt}
+\min_{\mathbf{x}}&\ \frac{1}{2}\|\mathbf{x}-\mathbf{v}\|_2^2 \\
+\text{s.t.}&\ \|\mathbf{x}\|_1 = z,\ \mathbf{x}\geqslant 0,
+\end{eqt}
+where $\mathbf{x}, \mathbf{v}\in\mathbb{R}^n$, $z\geqslant 0$. First, we sort $\mathbf{x}$ into descending order, namely
+\begin{eqt}
+y_1 \geqslant y_2 \geqslant ... \geqslant y_n. \label{descend}
+\end{eqt}
+Then we set 
+\begin{eqt}
+& \rho \gets \max\left\{j\in[n]: y_j - \frac{1}{j}\left(\sum_{r=1}^jy_r-z\right) > 0\right\} \\
+& \lambda \gets \frac{1}{\rho}\left(z-\sum_{r=1}^\rho y_r\right) \\
+& \mathbf{x} \gets \max\{\mathbf{x}-\lambda, 0\} \label{projupdate}
+\end{eqt}
+if $z>0$. If $z=0$, then $\mathbf{x}$ is automatically $\mathbf{0}$.
+
+For multipliers, it's easy to have the following updates,
+\begin{eqt}
+\omega_{i, j} \gets \omega_{i, j} + t(\pi_{i, j} - \tilde\pi_{i, j}) \label{mult}
+\end{eqt}
+We thus have the following Algorithm \ref{alg:ADMM-split}:
+\begin{algorithm}
+\caption{ADMM for Primal of Optimal Transport: A second splitting method}
+\label{alg:ADMM-split}
+\begin{algorithmic}[1]
+\REQUIRE {$C\in\mbR^{m\times n}$, $\mu\in\mbR^m$, $\nu\in\mbR^n$, $t\in \mathbb{R}^+$}
+\STATE $\pi, \tilde{\pi}, \gamma, \lambda, \omega\gets 0$
+\WHILE {\text{not converge}} 
+	\STATE Update $\pi$ according to \ref{projup}, \ref{descend} and \ref{projupdate}
+	\STATE Update $\tilde\pi$ according to  \ref{projup2}, \ref{descend}, and \ref{projupdate}
+	\STATE Update $\omega$ by \ref{mult}
+\ENDWHILE
+\RETURN $\pi$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Bregman ADMM}
+\cite{BADMM} proposes Bregman ADMM, which uses Bregman divergence to replace the penalty term in ADMM. Let $\phi: \Omega \to \mbR$ be a continuously differentiable and strictly convex function on the relative interior of the convex set $\Omega$. We define the Bregman divergence $B_\phi:\Omega\,\times \,\mathrm{relint} \, \Omega\to\mbR_+$ induced by $\phi$ as
+\begin{equation}
+B_\phi(x,y)=\phi(x)-\phi(y)-\la\nabla \phi(y),x-y\ra
+\end{equation}
+From the convexity of $\phi$, $B_\phi(x,y)\geqslant 0$ and the equality holds if and only if $x=y$. To solve the LP problem \ref{lp}, we consider to take $\phi(x)=\sum_{i}x_i\log(x_i)$. In this case, $B_\phi(x,y)=\mathrm{KL}(x,y)$ is the KL divergence between $x$ and $y$.
+
+Similar to that in Section \ref{sec:2.2}, we introduce a new variable $\tilde \pi\in\mbR^{m\times n}$ to split the constraints into two simplex $S_\mu=\{\pi|\pi\geqslant0, \pi\mbone_n = \mu\}$ and $S_\nu=\{\tilde \pi |\tilde \pi\geqslant 0, \tilde \pi^T\mbone_m = \mu\}$. Then problem \ref{lp} can be written in the following form,
+\begin{equation}
+\left\{
+\begin{aligned}
+&\min\quad \la C, \pi\ra\\
+&\mathrm{s.t.}\quad \pi\in S_\mu, \tilde \pi\in S_\nu, \pi=\tilde \pi
+\end{aligned}
+\right.
+\end{equation}
+
+We then introduce another variable $\sigma\in\mbR^{m\times n}$ for BADMM. Given $(\pi^{(l)},\tilde\pi^{(l)},\sigma^{(l)})$, we first update $\pi^{(l+1)}$ and $\tilde\pi^{(l+1)}$:
+\begin{equation}
+\label{badmm_pi_upd}
+\pi^{(l+1)}=\arg\min\limits_{\pi\in S_\mu} \la C, \pi\ra+\la \tilde \sigma^{(l)}, \pi\ra+t \KL(\pi,\tilde\pi^{(l)})
+\end{equation}
+\begin{equation}
+\label{badmm_pit_upd}
+\tilde\pi^{(l+1)}=\arg\min\limits_{\tilde\pi\in S_\nu} \la \sigma^{(l)}, -\tilde\pi\ra+t \KL(\tilde\pi, \pi^{(l+1)})
+\end{equation}
+Both \ref{badmm_pi_upd} and \ref{badmm_pit_upd} have closed form solution
+\begin{equation}
+\label{badmm_pipit_upd}
+\pi_{i,j}^{(l+1)}=\frac{\tilde\pi^{(l)}_{i,j}\exp(-\frac{C_{i,j}+\sigma_{i,j}^{(l)}}{t})}{\sum_{j=1}^n\tilde\pi^{(l)}_{i,j}\exp(-\frac{C_{i,j}+\sigma_{i,j}^{(l)}}{t})}\mu_i, \quad \tilde\pi_{i,j}^{(l+1)}=\frac{\pi_{i,j}^{(l+1)}\exp(\frac{\sigma_{i,j}^{(l)}}{t})}{\sum_{i=1}^m\pi_{i,j}^{(l+1)}\exp(\frac{\sigma_{i,j}^{(l)}}{t})}\nu_j
+\end{equation}
+We update $\sigma^{(l+1)}$ as
+\begin{equation}
+\label{badmm_sigma_upd}
+\sigma^{(l+1)} = \sigma^{(l)} + t (\pi^{(l+1)}-\tilde\pi^{(l+1)})
+\end{equation}
+Then we get the following Bregman ADMM, Algorithm \ref{alg:BADMM}.
+
+\begin{algorithm}
+\caption{Bregman ADMM for Optimal Transport}
+\label{alg:BADMM}
+\begin{algorithmic}[1]
+\REQUIRE {$C\in\mbR^{m\times n}$, $\mu\in\mbR^m$, $\nu\in\mbR^n$, $t>0$}
+\STATE Initialize $\tilde\pi^{(0)}=\mu\nu^T$, set $\sigma^{(0)}=\mathbf{0}_{n\times m}$, $l=0$
+\WHILE {\text{not converge}}
+	\STATE Update $(\pi^{(l+1)},\tilde\pi^{(l+1)},\sigma^{(l+1)})$ by \ref{badmm_pipit_upd} and \ref{badmm_sigma_upd}, $l=l+1$
+\ENDWHILE
+\RETURN $\frac{\pi^{(l)}+\tilde\pi^{(l)}}{2}$
+\end{algorithmic}
+\end{algorithm}
+
+\cite{BADMM} proves that when $m=n$, BADMM can be faster than ADMM by a factor of $O(n/ \log(n))$. 
+
+\input{final/entropy_regularization}
+
+\input{final/numerical_experiment}
+
+\section{Conclusion}
+\label{sec:5}
+Our work for OT (Optimal Transport) ends up here, but new ideas for improvement and continuous passion for research will never fade. We now give a brief summary for what we have done and give some outlooks.
+
+We first implemented several first-order methods, mainly `ADMM's. Generally, they do not perform very well if compared to state-of-art algorithm packages such as Gurobi. However, the violation of constraints and optimality of objective values are within our tolerance. From our experiments, directly solving primal problems are much better than solving dual ones. Needless to say, it has been considered that first-order methods such as `ADMM' are not suitable for large-scale OT problems. But we observe that first-order methods could also achieve relatively satisfying results, if we choose smart splitting schemes and tuning parameters.
+
+We then choose Entropy Regularization as our main topic. Sinkhorn is a theoretically and practically elegant algorithm. However, numerical stability and convergence speed cause difficulty in optimizing the regularized problem, especially when the coefficient of regularized term $\epsilon$ is small. We adopt a technique to improve the stability and the continuation strategy to boost convergence. Great improvement has been observed, but deterioration of performance when $\epsilon$ is very small still exists. It's worth mentioning that ADMM shows moderate results on Entropy Regularization.
+
+Now we provide some future outlooks. For first order methods, we hope to implement the interior point algorithm to deal with constraints satisfaction. In addition, second-order algorithms like Newton methods and semi-smooth Newton methods can be tested out. Also, as is mentioned before, projection on a simplex in first order methods can be further simplified to reduce iteration time. Furthermore, though we have testified that our choice of parameters achieve good results, theoretical properties remained to be studied.
+
+For Sinkhorn's method, we hope to continue on refining the numerical stability and boosting convergence. A simple method is to combine Sinkhorn with other methods such as ADMM. Additionally, if time has permitted, we might want to try implementing the algorithm in C++ in order to accelerate processing. 
+
+For numerical experiments, we hope to test on the whole DOTmark to have a more precise investigation on the accuracy and efficiency of all these algorithms. 
+
+Transportation problem is the basis for many high level applications. However, solving the problem is still tough even with numerous proposed methods. Of course, we hope that we can find more efficient methods, both in time and space. This will be left for future research.
+
+\section*{Acknowledgement}
+We would like to thank Zeyu Jia a lot for providing his server to let us run our numerical experiments. 
+
+The division of our work is listed below. Yifei Wang is responsible for the writing and coding of Bregman ADMM (Section 2.3), Sinkhorn's algorithm and related methods (Section 3.1-3.3); the framework of coding and the conducting of most of the numerical experiments in Section 4. Feng Zhu is responsible for the writing and coding of ADMMs and related methods (Section 2.1-2.2, Section 3.4, Appendix); the writing of most of the experiment reports in Section 4. 
+
+\printbibliography
+\begin{appendix}
+\section*{Appendix: Splitting method with penalty functions}
+
+To impose more attention on constraints, we propose the following splitting method with penalty functions.
+
+Let $F(\pi)$ and $G(\pi)$ be defined in the following way,
+\begin{eqt}
+& F(\pi) = \sum_{i, j}C_{i,j}\pi_{i,j} + \frac{t}{2}\left(\sum_{i}(\mu_i-\sum_{j}\pi_{i,j})^2 + \sum_{j}(\nu_j-\sum_{i}\pi_{i,j})^2\right) \\
+& G(\pi) = 
+\left\{
+\begin{matrix}
+0, \indent &\pi_{i, j}\geqslant0,\ \forall i, j\\
++\infty, \indent &\text{else}
+\end{matrix}
+\right.
+\end{eqt}
+Now let the problem be
+\begin{eqt}
+\min_\pi \ F(\pi) + G(\pi)
+\end{eqt}
+It's easy to obtain
+\begin{eqt}
+\text{prox}_{\frac{1}{w}G}(\pi) = \max\{\pi, 0\} \label{proxg}
+\end{eqt}
+
+To compute $\text{prox}_{\frac{1}{w}F}(\pi)$ is equivalent to solve
+\begin{eqt}
+\min_{\tilde{\pi}} \tilde L(\tilde{\pi}) = & \sum_{i, j}C_{i,j}\tilde\pi_{i,j} + \frac{t}{2}\left(\sum_{i}(\mu_i-\sum_{j}\tilde\pi_{i,j})^2 + \sum_{j}(\nu_j-\sum_{i}\tilde\pi_{i,j})^2\right) \\&+ \frac{w}{2}\left(\sum_{i, j}(\tilde{\pi}_{i, j} - \pi_{i, j})^2\right),
+\end{eqt}
+We set $\frac{\partial \tilde{L}}{\partial \pi}$ to zero and solve the linear equations. This yields
+\begin{eqt}
+w\tilde{\pi}_{i, j} + t\left(\sum_k\tilde{\pi}_{i, k}+\sum_k\tilde{\pi}_{k, j}\right) = -C_{i, j} + w\pi_{i, j} + t(\mu_i+\nu_j) \triangleq r_{i, j}
+\end{eqt}
+and 
+\begin{eqt}
+\tilde{\pi}_{i, j} & = \frac{1}{w}(r_{i, j}-\frac{t}{nt+w}\sum_kr_{i, k} - \frac{t}{mt+w}\sum_kr_{k, j}\\
+& + \frac{t^2}{mt+nt+w}(\frac{1}{mt+w}+\frac{1}{nt+w})\sum_{k, l}r_{k, l}) \label{proxf}
+\end{eqt}
+
+We now have the following algorithm \ref{alg:smpf}. Here we apply Douglas-Rachford update scheme and Nesterov accelerating method to boost convergence.
+
+\begin{algorithm}
+\caption{Splitting method with penalty functions for Optimal Transport}
+\label{alg:smpf}
+\begin{algorithmic}[1]
+\REQUIRE {$C\in\mbR^{m\times n}$, $\mu\in\mbR^m$, $\nu\in\mbR^n$, $t\in\mbR^+$, $w\in\mbR^+$}
+\STATE Initialize $\pi^{(0)}$ and set $\pi^{(-1)} = \pi$, $l\gets 0$
+\WHILE {\text{not converge}}
+	\STATE $\pi \gets \pi^{(l)}+\frac{i-1}{i+2}(\pi^{(l)}-\pi^{(l-1)})$
+	\STATE Compute $\tilde\pi$ by \ref{proxf}
+	\STATE Compute $\hat\pi$ by \ref{proxg}, with $\pi$ replaced by $2\tilde\pi-\pi$
+	\STATE $\pi^{(l+1)} \gets \hat\pi+\tilde\pi-\pi$
+	\STATE $l\gets l + 1$
+\ENDWHILE
+\RETURN $\pi^{(i)}$
+\end{algorithmic}
+\end{algorithm}
+
+In real implmentation, we found that $t$ is hard to tune. If it is small, then the constraints are not satisfied well. If it is large, the objective value becomes unacceptable. We have tried to combine \ref{alg:smpf} with \ref{alg:ADMM-dual} to impose constraints, but the results are not satisfactory.
+\end{appendix}
+\end{document}

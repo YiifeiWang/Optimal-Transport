@@ -1,0 +1,41 @@
+\begin{table}[htbp]
+\caption{Perfomance of algorithms for entropic regularization of OT on Gaussian mixture model}
+\label{gmm_er}
+\centering
+\begin{tabular} {|c|c|c|c|c|c|c|c|} 
+\hline
+\multicolumn{2}{|c|}{ }&\multicolumn{2}{c|}{$\epsilon=10^{-2}$}
+&\multicolumn{2}{c|}{$\epsilon=10^{-4}$}
+&\multicolumn{2}{c|}{$\epsilon=10^{-6}$}\\
+\hline
+\multicolumn{2}{|c|}{method}&sinkhorn&ADMM&sinkhorn&ADMM&sinkhorn&ADMM\\\hline
+\multirow{4}*{\makecell{$m=128$\\$n=128$}} 
+& time(s) & 10.39 & 0.23 & 9.52 & 0.85 & 7.92 & 6.19 \\\cline{2-8}              
+& iter & 20000 & 647 & 20000 & 2398 & 20000 & 20000 \\\cline{2-8}               
+& objval & 7.25e-02 & 7.24e-02 & 6.77e-04 & 2.19e-03 & 1.76e-04 & 2.32e-04 \\\cline{2-8}                                                                        
+& entval & -2.50e-02 & -2.50e-02 & 5.20e-02 & 5.20e-02 & 5.26e-02 & 5.26e-02 \\\cline{2-8}                                                                      
+& vltcst & 1.27e-12 & 9.93e-08 & 6.15e-14 & 9.96e-08 & 5.14e-12 & 3.83e-07 \\\hline
+
+\multirow{4}*{\makecell{$m=256$\\$n=256$}} 
+& time(s) & 34.53 & 1.34 & 31.96 & 1.90 & 25.48 & 18.53 \\\cline{2-8}           
+& iter & 20000 & 1213 & 20000 & 1782 & 20000 & 18203 \\\cline{2-8}              
+& objval & 7.27e-02 & 7.26e-02 & 8.55e-04 & 1.85e-03 & 4.94e-04 & 2.74e-04 \\\cline{2-8}                                                                        
+& entval & -3.89e-02 & -3.89e-02 & 5.19e-02 & 5.19e-02 & 5.26e-02 & 5.26e-02 \\\cline{2-8}
+& vltcst & 1.37e-12 & 9.96e-08 & 1.17e-13 & 9.91e-08 & 3.83e-12 & 9.98e-08 \\\hline
+
+\multirow{4}*{\makecell{$m=512$\\$n=512$}} 
+& time(s) & 140.15 & 12.56 & 130.25 & 11.82 & 104.53 & 56.03 \\\cline{2-8}     
+& iter & 20000 & 2228 & 20000 & 2100 & 20000 & 9939 \\\cline{2-8}              
+& objval & 7.27e-02 & 7.26e-02 & 8.95e-04 & 1.44e-03 & 2.07e-04 & 3.22e-04 \\\cline{2-8}
+& entval & -5.28e-02 & -5.28e-02 & 5.17e-02 & 5.17e-02 & 5.26e-02 & 5.26e-02 \\\cline{2-8}
+& vltcst & 1.42e-12 & 9.99e-08 & 8.56e-14 & 9.99e-08 & 1.58e-12 & 9.97e-08 \\\hline
+
+\multirow{4}*{\makecell{$m=1024$\\$n=1024$}} 
+& time(s) & 692.47 & 99.56 & 658.32 & 86.61 & 557.13 & 144.90 \\\cline{2-8}
+& iter & 20000 & 4034 & 20000 & 3523 & 20000 & 5896 \\\cline{2-8}
+& objval & 7.27e-02 & 7.24e-02 & 8.79e-04 & 7.20e-04 & 1.84e-04 & 4.07e-04 \\\cline{2-8}
+& entval & -6.67e-02 & -6.67e-02 & 5.16e-02 & 5.16e-02 & 5.26e-02 & 5.26e-02 \\\cline{2-8}
+& vltcst & 1.29e-12 & 9.99e-08 & 1.30e-13 & 1.00e-07 & 1.49e-12 & 1.00e-07 \\\hline
+
+\end{tabular}
+\end{table}

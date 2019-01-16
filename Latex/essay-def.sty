@@ -1,0 +1,88 @@
+%Copyright Yifei Wang 2018
+
+%Theorem-like environments configuration
+\usepackage[standard]{ntheorem}
+%汉化一些定理环境
+\newtheorem{zhthm}{定理}
+\newtheorem{zhlma}{引理}
+\newtheorem{zhmingti}{命题}
+\newtheorem{zhjielun}{结论}
+\newtheorem{thmque}{Question}
+\newtheorem{thmass}{Assumption}[section]
+\newtheorem{thms}{Theorem}[section]
+\newtheorem{lems}{Lemma}[section]
+
+%List-like environments configuration
+\usepackage{enumitem}
+
+%Program list environments
+\usepackage{listings}
+
+%Formula support
+\usepackage{amsmath}
+\usepackage{bbm}
+
+%color support
+\usepackage{xcolor}
+\definecolor{grey}{RGB}{202,202,202}
+
+%下划线和高亮
+\usepackage{soul}
+\sethlcolor{grey}
+
+%一些快捷键
+\newcommand{\dm}{displaymath}
+\newcommand{\p}{\partial}
+\newcommand{\la}{\left\langle}
+\newcommand{\ra}{\right\rangle}
+\newcommand{\reffig}[1]{Figure \ref{#1}}
+\newcommand{\refequ}[1]{Equation \ref{#1}}
+\newcommand{\bmth}{\bm{\theta}}
+\newcommand{\mfa}{\mathbf{a}}
+\newcommand{\mfb}{\mathbf{b}}
+\newcommand{\mfc}{\mathbf{c}}
+\newcommand{\mff}{\mathbf{f}}
+\newcommand{\mfg}{\mathbf{g}}
+\newcommand{\mfm}{\mathbf{m}}
+\newcommand{\mfp}{\mathbf{p}}
+\newcommand{\mfr}{\mathbf{r}}
+\newcommand{\mfu}{\mathbf{u}}
+\newcommand{\mfv}{\mathbf{v}}
+\newcommand{\mfx}{\mathbf{x}}
+\newcommand{\mfy}{\mathbf{y}}
+\newcommand{\mfA}{\mathbf{A}}
+\newcommand{\mfB}{\mathbf{B}}
+\newcommand{\mfC}{\mathbf{C}}
+\newcommand{\mfD}{\mathbf{D}}
+\newcommand{\mfF}{\mathbf{F}}
+\newcommand{\mfG}{\mathbf{G}}
+\newcommand{\mfH}{\mathbf{H}}
+\newcommand{\mfP}{\mathbf{P}}
+\newcommand{\mfU}{\mathbf{U}}
+\newcommand{\mfV}{\mathbf{V}}
+\newcommand{\mfW}{\mathbf{W}}
+\newcommand{\mfX}{\mathbf{X}}
+\newcommand{\mfY}{\mathbf{Y}}
+\newcommand{\mfone}{\mathbf{1}}
+
+\newcommand{\mbE}{\mathbb{E}}
+\newcommand{\mbR}{\mathbb{R}}
+\newcommand{\mbone}{\mathbbm{1}}
+
+\newcommand{\mcr}{\mathcal{r}}
+\newcommand{\mcA}{\mathcal{A}}
+\newcommand{\mcE}{\mathcal{E}}
+\newcommand{\mcF}{\mathcal{F}}
+\newcommand{\mcG}{\mathcal{G}}
+\newcommand{\mcL}{\mathcal{L}}
+\newcommand{\mcN}{\mathcal{N}}
+\newcommand{\mcO}{\mathcal{O}}
+\newcommand{\mcS}{\mathcal{S}}
+\newcommand{\mcU}{\mathcal{U}}
+\newcommand{\mcX}{\mathcal{X}}
+\newcommand{\msE}{\mathscr{E}}
+
+\newcommand{\diag}{\mathrm{diag}}
+\newcommand{\KL}{\mathrm{KL}}
+\newcommand{\prox}{\mathrm{prox}}
+\newcommand{\tr}{\mathrm{tr}}

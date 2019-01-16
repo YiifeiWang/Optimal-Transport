@@ -1,0 +1,32 @@
+\begin{table}[htbp]
+\caption{Perfomance of mosek and gurobi on Caffarelli's Example}
+\label{caff_mg}
+\centering
+\begin{tabular} {|c|c|c|c|c|c|c|c|} 
+\hline
+\multicolumn{2}{|c|}{method}&prim(M)&dual(M)&int(M)&prim(G)&dual(G)&int(G)\\\hline
+\multirow{4}*{\makecell{$m=128$\\$n=128$}} 
+&time(s)& 0.04 & 0.06 & 0.06 & 0.05 & 0.05 & 0.06 \\\cline{2-8}
+&iter& 1370 & 795 & 14 & 2061 & 820 & 15 \\\cline{2-8}
+&objval& 4.00e+00 & -5.58e-06 & -5.58e-06 & -5.58e-06 & -5.58e-06 & -5.58e-06 \\\cline{2-8}
+&vltcst& 1.09e-05 & 3.12e-17 & 6.02e-12 & 3.12e-17 & 3.12e-17 & 3.12e-17 \\\hline
+
+\multirow{4}*{\makecell{$m=256$\\$n=256$}} 
+&time(s)& 0.11 & 0.26 & 0.21 & 0.10 & 0.35 & 0.19 \\\cline{2-8}
+&iter& 3016 & 1996 & 15 & 6373 & 2157 & 15 \\\cline{2-8}
+&objval& 4.00e+00 & -1.34e-05 & -1.34e-05 & -1.34e-05 & -1.34e-05 & -1.34e-05 \\\cline{2-8}
+&vltcst& 2.60e-05 & 6.77e-17 & 5.81e-14 & 6.42e-17 & 6.42e-17 & 6.42e-17 \\\hline
+
+\multirow{4}*{\makecell{$m=512$\\$n=512$}} 
+&time(s)& 0.45 & 2.33 & 1.11 & 0.52 & 0.88 & 0.96 \\\cline{2-8}
+&iter& 7536 & 5588 & 18 & 21406 & 19906 & 17 \\\cline{2-8}
+&objval& 4.01e+00 & -3.40e-05 & -3.40e-05 & -3.40e-05 & -3.40e-05 & -3.40e-05 \\\cline{2-8}
+&vltcst& 6.70e-05 & 7.11e-17 & 1.13e-12 & 4.08e-17 & 4.08e-17 & 4.08e-17 \\\hline
+
+\multirow{4}*{\makecell{$m=1024$\\$n=1024$}} 
+&time(s)& 2.27 & 24.16 & 5.87 & 2.53 & 4.70 & 4.82 \\\cline{2-8}
+&iter& 17237 & 15464 &19 & 62128 & 68342 & 18 \\\cline{2-8}
+&objval& 4.00e+00 & -7.75e-05 & -7.75e-05 & -7.75e-05 & -7.75e-05 & -7.75e-05 \\\cline{2-8}
+&vltcst& 1.54e-04 & 9.50e-17 & 4.83e-12 & 4.29e-17 & 4.29e-17 & 4.29e-17 \\\hline
+\end{tabular}
+\end{table}

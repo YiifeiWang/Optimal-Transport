@@ -1,0 +1,36 @@
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage[linesnumbered, ruled]{algorithm2e}
+\usepackage{algpseudocode}
+\usepackage{txfonts}
+\usepackage{bm}
+\usepackage{geometry}
+\usepackage{color}
+\usepackage{indentfirst}
+\usepackage{type1cm}
+\usepackage{graphicx}
+\usepackage{txfonts}
+\usepackage{courier}
+\usepackage{listings}
+\usepackage{indentfirst}
+\setlength{\parindent}{2em}
+\newcommand{\ind}{\ \ \ }
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\renewcommand{\algorithmicensure}{\textbf{Output:}}
+\newenvironment{eqt}{\begin{equation}\begin{aligned}}{\end{aligned}\end{equation}}
+\fontsize{12pt}{18pt}\selectfont
+\setlength{\parindent}{4em}
+\setcounter{MaxMatrixCols}{10}
+\renewcommand{\theequation}{\arabic{section}.\arabic{equation}}
+\numberwithin{equation}{section}
+\makeatletter\@addtoreset{equation}{section}\makeatother
+\theoremstyle{definition}
+\newtheorem{defn}{Definition}[section]
+\newtheorem{thm}{Theorem}
+\newtheorem{lemma}{Lemma}[section]
+\newtheorem{remark}{Remark}
+\DeclareSymbolFont{largesymbol}{OMX}{yhex}{m}{n}
+\DeclareMathAccent{\Widehat}{\mathord}{largesymbol}{"62}
+\geometry{a4paper, top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm}
+\let\nofiles\relax

@@ -1,0 +1,32 @@
+\begin{table}[htbp]
+\caption{Perfomance of mosek and gurobi on Ellipse Example}
+\label{ellipse_mg}
+\centering
+\begin{tabular} {|c|c|c|c|c|c|c|c|} 
+\hline
+\multicolumn{2}{|c|}{method}&prim(M)&dual(M)&int(M)&prim(G)&dual(G)&int(G)\\\hline
+\multirow{4}*{\makecell{$m=128$\\$n=128$}} 
+&time(s)& 0.10 & 0.13 & 0.08 & 0.05 & 0.14 & 0.08 \\\cline{2-8}
+&iter& 1675 & 1497 & 12 & 2965 & 1302 & 16 \\\cline{2-8}
+&objval& 2.57e+00 & -6.86e-06 & -6.86e-06 & -6.86e-06 & -6.86e-06 & -6.86e-06 \\\cline{2-8}
+&vltcst& 1.33e-05 & 1.04e-17 & 7.49e-10 & 5.20e-18 & 6.07e-18 & 5.20e-18 \\\hline
+
+\multirow{4}*{\makecell{$m=256$\\$n=256$}} 
+&time(s)& 0.18 & 0.86 & 0.40 & 0.19 & 1.38 & 0.32 \\\cline{2-8}
+&iter& 4112 & 3968 & 16 & 8966 & 3664 & 16 \\\cline{2-8}
+&objval& 2.48e+00 & -1.77e-05 & -1.77e-05 & -1.77e-05 & -1.77e-05 & -1.77e-05 \\\cline{2-8}
+&vltcst& 3.48e-05 & 2.13e-17 & 1.11e-10 & 1.39e-17 & 1.47e-17 & 1.47e-17 \\\hline
+
+\multirow{4}*{\makecell{$m=512$\\$n=512$}} 
+&time(s)& 0.86 & 9.26 & 2.16 & 0.92 & 2.05 & 1.95 \\\cline{2-8}
+&iter& 9528 & 12791 & 19 & 25763 & 42487 & 17 \\\cline{2-8}
+&objval& 2.28e+00 & -4.32e-05 & -4.32e-05 & -4.32e-05 & -4.32e-05 & -4.32e-05 \\\cline{2-8}
+&vltcst& 8.55e-05 & 1.00e-16 & 3.09e-12 & 6.20e-17 & 6.14e-17 & 6.18e-17 \\\hline
+
+\multirow{4}*{\makecell{$m=1024$\\$n=1024$}} 
+&time(s)& 5.25 & 96.98 & 12.30 & 4.97 & 11.51 & 11.05 \\\cline{2-8}
+&iter& 21756 & 33591 & 20 & 79738 & 152520 & 19 \\\cline{2-8}
+&objval& 2.25e+00 & -9.83e-05 & -9.83e-05 & -9.83e-05 & -9.83e-05 & -9.83e-05 \\\cline{2-8}
+&vltcst& 1.96e-04 & 9.45e-17 & 4.96e-13 & 2.63e-17 & 2.69e-17 & 2.65e-17 \\\hline
+\end{tabular}
+\end{table}

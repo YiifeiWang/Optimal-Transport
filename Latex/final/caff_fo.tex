@@ -1,0 +1,32 @@
+\begin{table}[htbp]
+\caption{Perfomance of first order methods on Caffarelli's Example}
+\label{caff_fo}
+\centering
+\begin{tabular} {|c|c|c|c|c|c|c|} 
+\hline
+\multicolumn{2}{|c|}{method}&prim(M)&ADMM-p&ADMM-d&ADMM-s&BADMM\\\hline
+\multirow{4}*{\makecell{$m=128$\\$n=128$}} 
+&time(s) & 0.04 & 1.30 & 0.90 & 3.61 & 2.12 \\\cline{2-7}
+&iter & 1370 & 8605 & 5910 & 5587 & 9588 \\\cline{2-7}
+&objval & 4.00e+00 & 6.75e-05 & 2.54e-04 & 9.05e-05 & 4.19e-04 \\\cline{2-7}
+&vltcst & 1.09e-05 & 4.99e-07 & 9.91e-05 & 1.61e-07 & 1.74e-05 \\\hline
+
+\multirow{4}*{\makecell{$m=256$\\$n=256$}} 
+&time(s) & 0.10 & 3.31 & 3.26 & 23.06 & 14.54 \\\cline{2-7}
+&iter & 3016 & 9177 & 9444 & 10788 & 15936 \\\cline{2-7}
+&objval & 4.00e+00 & 6.99e-05 & 1.67e-04 & 3.30e-05 & 2.38e-04 \\\cline{2-7}
+&vltcst & 2.60e-05 & 5.00e-07 & 9.98e-05 & 1.95e-07 & 2.58e-05 \\\hline
+
+\multirow{4}*{\makecell{$m=512$\\$n=512$}} 
+&time(s) & 0.47 & 12.88 & 16.67 & 114.61 & 80.05 \\\cline{2-7}
+&iter & 7536 & 6612 & 10983 & 12057 & 20000 \\\cline{2-7}
+&objval & 4.01e+00 & 1.48e-04 & 1.51e-04 & 3.32e-05 & 2.43e-04 \\\cline{2-7}
+&vltcst & 6.70e-05 & 4.99e-07 & 1.00e-04 & 1.96e-07 & 1.13e-04 \\\hline
+
+\multirow{4}*{\makecell{$m=1024$\\$n=1024$}} 
+&time(s) & 2.33 & 47.56 & 123.05 & 841.48 & 328.21 \\\cline{2-7}
+&iter & 17237 & 5052 & 16104 & 20000 & 20000 \\\cline{2-7}
+&objval & 4.00e+00 & 1.84e-04 & 6.40e-05 & -3.31e-05 & -4.43e-05 \\\cline{2-7}
+&vltcst & 1.54e-04 & 4.99e-07 & 1.00e-04 & 6.56e-07 & 1.49e-03 \\\hline
+\end{tabular}
+\end{table}

@@ -1,0 +1,35 @@
+\begin{table}[htbp]
+\caption{Perfomance of algorithms for entropic regularization of OT on DOTmark Part2}
+\label{DOTmark_er2}
+\centering
+\begin{tabular} {|c|c|c|c|c|c|c|c|} 
+\hline
+\multicolumn{2}{|c|}{ }&\multicolumn{2}{c|}{$\epsilon=10^{-2}$}
+&\multicolumn{2}{c|}{$\epsilon=10^{-4}$}
+&\multicolumn{2}{c|}{$\epsilon=10^{-6}$}\\
+\hline
+Class No.&method &sinkhorn&ADMM&sinkhorn&ADMM&sinkhorn&ADMM\\\hline
+
+\multirow{4}*{8} 
+& time(s) & 604.68 & 273.63 & 502.38 & 374.75 & 441.42 & 374.83 \\\cline{2-8}                                                                            
+& iter & 20000 & 11185 & 20000 & 15318 & 20000 & 15323 \\\cline{2-8}        
+& objval & 3.30e-02 & 6.25e-04 & 4.21e-02 & -1.95e-04 & 2.01e+00 & -2.27e-04 \\\cline{2-8}                                                           
+& entval & 1.12e+01 & 1.08e+01 & 1.13e+01 & 1.09e+01 & 3.27e+01 & 1.09e+01 \\\cline{2-8}                                                             
+& vltcst & 5.46e-13 & 2.00e-07 & 1.72e-11 & 2.00e-07 & 8.71e-10 & 2.00e-07 \\\hline
+
+\multirow{4}*{9} 
+& time(s) & 603.00 & 249.23 & 501.40 & 299.38 & 439.78 & 264.61 \\\cline{2-8}
+& iter & 20000 & 10177 & 20000 & 12241 & 20000 & 10814 \\\cline{2-8}
+& objval & 1.69e-05 & 4.17e-05 & 1.69e-05 & -7.33e-05 & 7.96e-01 & 9.68e-05 \\\cline{2-8}
+& entval  & 2.43e+01 & 2.43e+01 & 2.44e+01 & 2.44e+01 & 4.38e+01 & 2.24e+01 \\\cline{2-8}
+& vltcst   & 6.59e-13 & 1.98e-07 & 2.73e-11 & 1.99e-07 & 5.95e-10 & 1.99e-07 \\\hline
+
+\multirow{4}*{10}
+& time(s) & 590.49 & 237.95 & 500.10 & 281.92 & 441.94 & 282.65 \\\cline{2-8}
+& iter & 20000 & 9693 & 20000 & 11524 & 20000 & 11549 \\\cline{2-8}
+& objval & 4.20e-01 & 1.98e-03 & 1.25e+00 & -1.02e-03 & 7.78e+00 & -1.21e-04 \\\cline{2-8}
+& entval & 9.22e-01 & 6.25e-01 & 1.60e+00 & 7.08e-01 & 6.23e+00 & 7.09e-01 \\\cline{2-8}
+& vltcst & 2.17e-13 & 2.00e-07 & 2.16e-12 & 2.00e-07 & 1.18e-10 & 2.00e-07 \\\hline
+
+\end{tabular}
+\end{table}

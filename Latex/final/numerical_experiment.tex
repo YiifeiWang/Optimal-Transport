@@ -1,0 +1,236 @@
+\section{Numerical Experiment}
+\label{sec:4}
+In this section, we apply various methods to solve the LP form of optimal transport \ref{lp} and the entropic regularization of optimal transport \ref{equ:kl}. All of the numerical experiments are conducted on an Intel Core i7-6500U Processor with 2 cores and 4 threads.
+
+\subsection{Datasets of Optimal Transport}
+We perform the numerical experiments on various datasets, including randomly generated data, DOTmark\cite{DOTmark}, ellipse example \cite{multiscale}, Caffarelli's example \cite{multiscale} and Gaussian mixture model. 
+
+\subsubsection{Randomly generated data}
+In order to make the feasible set not empty, we first generate a random matrix $R\in \mbR^{m\times n}$, where $R_{i,j}\sim \mcN(0,1)\, i.i.d.$. and then generate $\mu_i, \nu_j$ by
+$$
+\mu_i=\frac{\sum_{j=1}^n|R_{i,j}|}{\sum_{i=1}^m\sum_{j=1}^n|R_{i,j}|}, \, \forall i=1, 2, \dots m\\
+$$
+$$
+\nu_j=\frac{\sum_{i=1}^m|R_{i,j}|}{\sum_{i=1}^m\sum_{j=1}^n|R_{i,j}|}, \, \forall j=1, 2, \dots n\\
+$$
+It is easy to verify that $\sum_{i=1}^m\mu_i=\sum_{j=1}^n\nu_j=1$. We then generate $C_{i,j} \sim \mcN(0,1)\, i.i.d.$. We denote $C_{\mathrm{min}}=\min_{i,j}C_{i,j}$ and let $C_{i,j}=C_{i,j}-C_{\mathrm{min}}$ to ensure $C_{i,j}\geq 0$. 
+
+\subsubsection{DOTmark}
+DOTmark \cite{DOTmark} provides $10$ classes of $10$ different images, each of which is available at the different resolutions from $32\times32$ to $512\times512$. Suppose we select two images $x$ and $y$ with same resolution $l\times l$ from one class. The corresponding parameter for the standard form of LP is given in the following way: $m=n=l^2$, $\mu_i=x_i$, $\nu_j=y_j$ and $C_{i,j}=\|x_i-y_j\|_p$, where $(x_i)_{1\leq i\leq m}$ and $(y_j)_{1\leq j\leq n}$ form a regular square grid in $\mbR^2$. In practice, we take $p=2$. In solving this LP, we actually calculate the Wasserstein distance between $x$ and $y$.
+
+\subsubsection{Ellipse Example}
+The ellipse example consists of two uniform samples, source and target data set, of size $n$ from the unit circle with normal distributed noise added with zero mean and deviation 0.1. Slightly different from that in the paper \cite{multiscale}, we construct the source data example by scaling in the x-Axis by 2.0 and in the y-Axis by 0.5. The target data sample is then scaled in the x-Axis by 0.5 and y-Axis by 2.0. The corresponding parameter for the standard form of LP is as follows. $m = n$, $\mu_i=1, \nu_i=1(i=1, ..., n)$ and $C_{i, j}=\|x_i-y_j\|_2$, which is the Euclidean distance between two points $x_i$ and $y_j$. Figure \ref{ellipse} gives an example. 
+\begin{figure}[h]
+\centering
+\includegraphics[width=12cm]{final/ellipse1.png}
+\caption{An Ellipse Example with sample size $n=50$. The darker the line, the greater the $\pi_{i, j}$.}
+\label{ellipse}
+\end{figure}
+
+\subsubsection{Caffarelli's Example}
+This example, mentioned in \cite{multiscale}, consists of two uniform samples on $[-1, 1]^2$ of size $n$. Then any point outside the unit circle are then discarded. The source and target data sample is split along the x-Axis at 0 and shifted by -2 and +2, respectively. Note that the true number of points may be less than $n$. When $n$ is large, about $\frac{\pi}{4}n$ points are preserved. For ease of notation, we still assume there are $n$ points. The corresponding parameter for the standard form of LP is as follows. $m = n$, $\mu_i=1, \nu_i=1(i=1, ..., n)$ and $C_{i, j}=\|x_i-y_j\|_2$, which is the Euclidean distance between two points $x_i$ and $y_j$. Figure \ref{caff} gives an example.
+\begin{figure}[h]
+\centering
+\includegraphics[width=12cm]{final/caff1.png}
+\caption{An Caffarelli's Example with sample size $n=50$. The darker the line, the greater the $\pi_{i, j}$.}
+\label{caff}
+\end{figure}
+
+\subsubsection{Gaussian Mixture Model}
+Suppose $p_\mu$ and $p_\nu$ are the probability density function of two different Gaussian mixture models and $N$ is the number of discrete points. In this example, $\mu$ and $\nu$ are the normalized discrete distribution of Gaussian mixture models, which satisfy
+$$
+\mu_i=\frac{p_\mu(\frac{i-1}{N-1})}{\sum_{i=1}^Np_\mu(\frac{i-1}{N-1})}, \quad \nu_j=\frac{p_\nu(\frac{j-1}{N-1})}{\sum_{j=1}^Np_\nu(\frac{j-1}{N-1})}
+$$
+And $C_{i,j}=|i-j|$. 
+
+\subsection{Different methods on Mosek and Gurobi}
+`prim', `dual', `int' represent primal simplex, dual simplex and interior point method respectively. `(M)' means Mosek, `(G)' means Gurobi. For each method, we record the time and the number of iteration it takes and evaluate their performance. We examine the accuracy of the solution $\pi$ by the value of the objective function ('objval') 
+$$
+\sum_{i=1}^m\sum_{j=1}^nC_{i,j}\pi_{i,j}
+$$
+and the violation of the constraints ('vltcst') 
+$$
+\sum_{i=1}^m|\mu_i - \sum_{j=1}^{n}\pi_{i, j}| + \sum_{j=1}^n|\nu_j-\sum_{i=1}^m\pi_{i, j}|$$
+In the table, we only give the exact value of `objval' for prim(M). In `objval' of other methods, we give its relative difference to prim(M). Namely, if `objval' for prim(M) is $f_1$ and `objval' for prim(G) is $f_2$, in `objval' of prim(G), we give $\frac{f_1-f_2}{f_1}$. 
+
+\subsubsection{Randomly generated data}
+For simplicity, we only consider the case when $m=n$. We take $m=128,256,512,1024$.  
+
+\input{final/RGD_mg}
+
+From Table \ref{RGD_mg}, we can see on Mosek, dual simplex method and interior point method take much more time than primal simplex does, especially when $m, n$ are large. But on Gurobi, dual simplex method is the fastest method and the time primal simplex method takes is close to the time interior point takes. Interior point method takes much smaller number of iterations than  We can observe that compared to other methods, primal simplex method on Mosek gets the largest value of objective function and the largest value of the violation of constraints. On Mosek, dual simplex methods achieves the lowest value of `vltcst', which partly explains why it takes the longest time. On Gurobi, the solution from all methods satisfies constraints perfectly.
+
+\subsubsection{DOTmark}
+We then test the performance of Mosek and Gurobi on DOTmark \cite{DOTmark}. We number the classes of DOTmark with the order of alphabet in the following way.
+\begin{table}[!htp]
+\centering
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+CauchyDensity&ClassicImages&GRFmoderate&GRFrough&GRFsmooth\\\hline
+1&2&3&4&5\\\hline
+LogGRF&LogitGRF&MicroscopyImages&Shapes&WhiteNoise\\\hline
+6&7&8&9&10\\\hline
+\end{tabular}
+\end{table}
+
+We test on pictures with resolution $32\times32$. 
+\input{final/DOTmark_mg}
+
+From Table \ref{DOTmark_mg}, we observe that dual simplex method on Mosek takes much longer time than other methods. The cpu-time of primal simplex method on Mosek and primal simplex method and dual simplex method on Gurobi are close. On Mosek and Gurobi, the iteration number vary with different classes of DOTmark. Compared to other methods, primal simplex method on Mosek gets the largest `vltcst' and the largest `vltcst'. On Mosek, dual simplex methods achieves the smallest `vltcst'. On Gurobi , the solution $\pi$ from all methods satisfies the constraints perfectly.
+
+\subsubsection{Ellipse Example \& Caffarelli's Example}
+Similar to randomly generated data, we only consider the case when $m=n$. We take $m=128,256,512,1024$.  
+\input{final/ellipse_mg}
+\input{final/caff_mg}
+
+Different from the results on randomly generated data, Table \ref{ellipse_mg} shows that on Ellipse Example, dual simplex method takes much longer time and more iterations than primal simplex method, no matter on Mosek or on Gurobi. Similar to Ellipse Example, Table \ref{caff_mg} shows that dual simplex method takes much longer time than the primal simplex method, no matter on Mosek or on Gurobi. The iteration number of primal simplex method and dual simplex method are close. Similarly, compared to other methods, primal simplex method on Mosek gets the largest `vltcst' and the largest `vltcst'. On Mosek, dual simplex methods achieves the smallest `vltcst'. On Gurobi , the solution $\pi$ from all methods satisfies the constraints perfectly.
+
+\subsection{First order methods}
+`prim(M)' means primal method of Mosek. `ADMM-p' means ADMM primal method \ref{alg:ADMM}. `ADMM-d' means ADMM dual method \ref{alg:ADMM-dual}. `ADMM-s' means another ADMM splitting method for primal problem \ref{alg:ADMM-split}. BADMM means Bregman ADMM \ref{alg:BADMM}.
+\subsubsection{Art of Tuning Parameters}
+The success of ADMM always lies in an appropriate choice of the coefficient $t$ in the quadratic term of the augmented Lagrangian function. Thanks to the normalization of constraints, i.e., letting $\sum_{i=1}^m\mu_i = \sum_{j=1}^n\nu_j = 1$, the tuning of parameters is relatively easier. Intuitively, the value of $t$ should be dependent on the problem size, $m$ and $n$, and the objective coefficients $C$. In our implementation, for primal problem, we let $t$ to be proportional to $(m+n)\bar C$, where $\bar C$ is the mean of the coefficient matrix $C$ ($\frac{1}{mn}\sum_{i, j}C_{i, j}$). For dual problem, we set $t$ to be inversely proportional to $(m+n)\bar C$. For the Bregman ADMM, we set $t$ to be proportional to $\bar C$. The detailed proportion will be clear in the following. Empirically, we found that such strategy performs well in our experiments.
+
+\subsubsection{Randomly Generated Data}
+\input{final/RGD_fo}
+In Table \ref{RGD_fo}, we present the numerical results on random generated data. 
+Detailed tuning parameters is listed in Table \ref{param_rgd_fo}.
+\begin{table}[h]
+\centering
+\caption{Tuned Parameters: Random Generated Data}
+\label{param_rgd_fo}
+\begin{tabular}{|c|c|c|}
+\hline 
+Solver & $t$ & Stopping Rule \\
+\hline
+ADMM-p & $5(m+n)\bar C$ & $\text{`vltcst'}\leqslant$ 5e-07 or $\text{`iter'}\geqslant$ 2e+04 \\\hline
+ADMM-d & $1/(8(m+n)\bar C)$ & $\text{`vltcst'}\leqslant$ 2e-04 or $\text{`iter'}\geqslant$ 2e+04 \\\hline
+ADMM-s & $2(m+n)\bar C$ & $\text{`vltcst'}\leqslant$ 1e-07 or $\text{`iter'}\geqslant$ 2e+04 \\\hline
+BADMM & $10\bar C$ & $\|\pi-\tilde\pi\|_1\leqslant$ 1e-06 or $\text{`iter'}\geqslant$ 2e+04 \\
+\hline
+\end{tabular}
+\end{table}
+
+In this setting, both `ADMM-p' and `ADMM-s' achieves relatively better results. They both satisfy the constraints quite well and achieve lower objective value. `ADMM-p' spends moderate time in all problems because all computation has closed form. `ADMM-s' performs quite well in `objval' and `vltcst', especially when the problem size is larger. However, such accuracy is at the cost of much longer time. In fact, from our observation, much of the time by `ADMM-s' is spent on the projection on the simplex(constraints). There exists more efficient algorithms for projection, but since time is limited, we do not implement them. The projection is quite essential in `ADMM-s' because it imposes $\pi$ to satisfy constraints, and this may explain why the constraints are easy to satisfy within tolerance.
+
+It's worth noting that `ADMM-d' has weakness in satisfying constraints. This is because in Section 2.1.2 we regard the ``dual of dual'' as an approximation of initial variables, which is numerically unstable. In our experiments, we found that `ADMM-d' converges faster at the beginning to the optimal value, but then continuously vibrates around optimal value for a long time. `BADMM' appears to perform worse than other three algorithms. The selection of $t$ is inconsistent with other ADMM due to the property of KL divergence. If $t$ is selected to be too big, then the exponential term in \ref{badmm_pipit_upd} may be so close to 1 that leads to bad precision. Furthermore, in our experiments, we found that when we increase $t$, `BADMM' indeed has slightly better performance in `vltcst' but deteriorates rapidly in `objval'. Our parameter is a balance between the two targets.
+
+\subsubsection{DOTmark}
+Some detailed tuning parameters is listed in Table \ref{param_DOTmark_fo}.
+\begin{table}[htbp]
+\centering
+\caption{Tuned Parameters: DOTmark}
+\label{param_DOTmark_fo}
+\begin{tabular}{|c|c|c|}
+\hline 
+Solver & $t$ & Stopping Rule \\
+\hline
+ADMM-p & $5(m+n)\bar C$ & $\text{`vltcst'}\leqslant$ 5e-07 or $\text{`iter'}\geqslant$ 2e+04 \\\hline
+ADMM-d & $1/(8(m+n)\bar C)$ & $\text{`vltcst'}\leqslant$ 2e-04 or $\text{`iter'}\geqslant$ 2e+04 \\\hline
+ADMM-s & $2(m+n)\bar C$ & $\text{`vltcst'}\leqslant$ 4e-07 or $\text{`iter'}\geqslant$ 2e+04 \\\hline
+BADMM & $10\bar C$ & $\|\pi-\tilde\pi\|_1\leqslant$ 4e-06 or $\text{`iter'}\geqslant$ 2e+04 \\
+\hline
+\end{tabular}
+\end{table}
+
+\input{final/DOTmark_fo}
+Table \ref{DOTmark_fo} presents the numerical results on DOTmark.
+
+As to constraints, all methods perform similar to that in the setting of random generated data, since our stopping rule is built on `vltcst' or the norm of difference between $\pi$ and $\tilde\pi$. 
+
+As to objective value, the three traditional ADMM methods are not stable on `objval' and tend to achieve higher value than Mosek. This may be because of the different structure between random generated data and DOTmark. `BADMM' tends to achieve lower objective value. However, the results are not stable and the constraints are not satisfied well.
+
+As to iteration numbers and time spent, surprisingly, `ADMM-p' and `ADMM-s' need much less iterations than others. This phenomenon implies that we could tighten our stopping rule by decreasing the thresholds. Due to the time limit, further experiments could be conducted in the future.
+
+\subsubsection{Ellipse Example \& Caffarelli's Example}
+The detailed parameters is listed in Table \ref{param_ellcaff_fo}. 
+\begin{table}[htbp]
+\centering
+\caption{Tuning Parameters: Ellipse \& Caffarelli}
+\label{param_ellcaff_fo}
+\begin{tabular}{|c|c|c|}
+\hline 
+Solver & $t$ & Stopping Rule \\
+\hline
+ADMM-p & $5(m+n)\bar C$ & $\text{`vltcst'}\leqslant$ 5e-07 or $\text{`iter'}\geqslant$ 2e+04 \\\hline
+ADMM-d & $1/(8(m+n)\bar C)$ & $\text{`vltcst'}\leqslant$ 2e-04 or $\text{`iter'}\geqslant$ 2e+04 \\\hline
+ADMM-s & $2(m+n)\bar C$ & $\text{`vltcst'}\leqslant$ 2e-07 or $\text{`iter'}\geqslant$ 2e+04 \\\hline
+BADMM & $10\bar C$ & $\|\pi-\tilde\pi\|_1\leqslant$ 4e-06 or $\text{`iter'}\geqslant$ 2e+04 \\
+\hline
+\end{tabular}
+\end{table}
+
+\input{final/ellipse_fo}
+\input{final/caff_fo}
+
+Table \ref{ellipse_fo} and \ref{caff_fo} presents numerical results for Ellipse Example and Caffarelli's Example, respectively.
+
+The constraints are generally satisfied before we stop iterations. The solution from `BADMM' does not satisfy the constraints very well. However, the optimal value is not within our expectation. The vibration of objective values around optimal values are observed in the three traditional ADMM methods. Among these algorithms, `ADMM-s' performs relatively better on `iter', `objval', and `vltcst', though it takes more time in each iteration. Nevertheless, `objval' of `BADMM' is relatively low.
+
+\subsection{Algorithms for entropic regularized OT}
+`sinkhorn' represents the Sinkhorn's algorithm with numerical stability and continuation strategy \ref{alg:sansc}. `ADMM' means the algorithm described in \ref{alg:ADMM-ER}. Addition to `time', `iter', `objval' and `vltcst', we use `entval' to denote the objective value with extropy regularization term. The values in `objval' are, same as before, compared to `prim(M)'.
+
+The parameters and stopping criterions of our algorithms are given in Table \ref{param_er}. In 'sinkhorn', we apply continuation strategy. If the coefficient of the regularized term is $\epsilon$, we select $10^i\epsilon(i=4, 3, 2, 1, 0)$ as the sequence and run 4000 iterations in optimizing every subproblem.
+
+\begin{table}[htbp]
+\centering
+\caption{Tuned Parameters: algorithms for entropic regularized OT}
+\label{param_er}
+\begin{tabular}{|c|c|c|}
+\hline 
+method & $t$ & Stopping Rule \\
+\hline
+ADMM & $5(m+n)\bar C$ & $\text{`vltcst'}\leqslant$ 1e-07 or $\text{`iter'}\geqslant$ 2e+04 \\\hline
+sinkhorn & / & $\text{`iter'}\geqslant$ 2e+04 \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Gaussian Mixture Model: The effect of continuation strategy}
+
+We consider to test Sinkhorn's algorithm with numerical stability on Gaussian mixture model and test the effect of continuation strategy. We first take $N=128$ as a first exmaple. Figure \ref{gmm3} gives the probability density function of two Gaussian mixture models.
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=12cm]{final/gmm3.jpg}
+\caption{The probability distribution function of two Gaussian mixture models $G_1$ and $G_2$. $G_1$ (blue one) has mean $[0.2,0.5]$, variance $[0.05^2, 0.03^2]$ and component proportion $[0.6, 0.4]$; $G_2$ (red one) has mean $[0.6,0.7]$, variance $[0.03^2, 0.05^2]$ and component proportion $[0.3, 0.7]$. }
+\label{gmm3}
+\end{figure}
+
+We then take $\epsilon=10^{-2},10^{-3},10^{-4},10^{-5}$. If we use the vanilla Sinkhorn's algorithm \ref{alg:sa} for $\epsilon=10^{-4},10^{-5}$, $K^{\epsilon}$ would be a zero matrix. For Sinkhorn's algorithm with numerical stability \ref{alg:sans}, we take the maximum iteration number to be $10,100,1000,4000$ respectively. For Sinkhorn's algorithm with numerical stability and continuation strategy \ref{alg:sansc}, we take $\alpha=0.1$, $\epsilon_0=\epsilon\times 10^5$ and the maximum iteration number to be $2,20,200,800$ respectively. 
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=12cm]{final/gmm4.jpg}
+	\caption{Impact of $\epsilon$ on the coupling between two gaussian mixture models \ref{gmm1}. From left to right, $\epsilon=10^{-2},10^{-3},10^{-4},10^{-5}$. The upper row is without continuation strategy and the lower row is with continuatation strategy. The purple one is the solution to the entropic regularized LP. The green one is the solution to the original LP.}
+\label{gmm4}
+\end{figure}
+
+From Figure \ref{gmm4}, we can find that with same iteration number, Sinkhorn's algorithm with numerical stability and continuation strategy converges faster than the one only with numerical stability. This shows that with proper choice of the parameter of continuation, we can achieve acceleration in Sinkhorn's algorithm with continuation strategy.
+
+We then perform a comprehensive numerical experiment on Gaussian mixture model. Detailed parameters and the stopping criterions are listed in Table \ref{param_er}. 
+
+\input{final/gmm_er}
+Table \ref{gmm_er} gives the comprehensive numerical results for Gaussian Mixture Model. The setting is same as Figure \ref{gmm1}, except that we test examples for different problem sizes, i.e., we let $N=128, 256, 512, 1024$, respectively. We observe that, in most cases, although `sinkhorn' takes much longer time and more iterations than `ADMM', `sinkhorn' outperforms `ADMM' in both `objval' and `vltcst'. 
+
+\subsubsection{Randomly generated data}
+The parameters and the stopping criterions are listed in Table \ref{param_er}. Table \ref{RGD_er} presents numerical results on random generated data. 
+
+\input{final/RGD_er}
+
+We find that the `objval' and `vltcst' of `sinkhorn' is getting worse with the decrease of $\epsilon$. This can be explained by the computation complexity of Sinkhorn's algorithm. As shown in Section 3.2, the $\tau$-approximate solution of the unregularized OT problem takes $O(n^2\log(n)\tau^{-3})$ operations where $\epsilon=\tau/\log(n)$. This means that if we decrease the $\epsilon$ by $0.1$, theoretically we would need $10^3$ times iteration to get a precise solution. Although our improvements of Sinkhorn's algorithm makes it adapt to small $\epsilon$, but the computation is costly. If we want to use Sinkhorn's algorithm to get an approximation solution of the orignial problem \ref{lp}, we should pay attention to choose an appropriate $\epsilon$. 
+
+On the contrary, `ADMM' appears robustness in satisfying constraints within acceptable iteration number. `vltcst' of all test samples are below 1e-06, though it's not comparable to `sinkhorn'. `objval' of ADMM appears to be gradually lower than `prim(M)' when $\epsilon$ decreases. It's worth noting that in `ADMM' we do not apply continuation strategy. In fact, we observe that with the carefully selected $t$, `ADMM' converges quite fast to the optimal value at the beginning, whatever $\epsilon$ is, although vibration is unavoidable in the latter steps. Of course, for $\epsilon$ not large and small or moderate problem sizes, `sinkhorn' performs better than `ADMM'.
+
+
+\subsubsection{DOTmark}
+Detailed parameters are listed in \ref{param_er}. (The stopping rule for `ADMM' changes to $\text{`vltcst'}\leqslant$ 1e-07 or $\text{`iter'}\geqslant$ 2e+04.) Table \ref{DOTmark_er1} and \ref{DOTmark_er2} present numerical results on DOTmark.
+\input{final/DOTmark_er1}
+\input{final/DOTmark_er2}
+
+Same as before, `objval' and `vltcst' of `sinkhorn' is getting worse with the decrease of $\epsilon$. All of the results are within 1e-09 in `vltcst', but `objval' deteriorate rapidly when $\epsilon$ decreases. This can be again explained by the computation complexity of Sinkhorn's algorithm. 
+
+'ADMM' can achieve relatively lower objective value on average, and need moderate iterations before `vltcst' arrives at a threshold. The performance is similar to random generated data setting with larger problem sizes. We should note that due to the different problem structures, it seems difficult sometimes for `ADMM' to outperform `prim(M)'.
+
+\subsubsection{Ellipse Example \& Caffarelli's Example}
+\input{final/ellipse_er}
+\input{final/caff_er}
+Table \ref{param_er} lists the detailed parameters.Table \ref{ellipse_er} and Table \ref{caff_er} present numerical results for Ellipse Example and Caffarelli's Example, respectively. Through our previous experiments, we observe that with the decrease of $\epsilon$, `ADMM' does not require so much increase of computational complexity as `sinkhorn'. This can be explained by the limit when $\epsilon\to0$. When $\epsilon\to0$, `ADMM' reduce to ADMM for the primal problem \ref{lp}. But with $\epsilon\to0$, we have shown in Section 3.3.1 that `sinkhorn' will diverge due to the loss of strong convexity. And with the decrease of $\epsilon$, the strong convexity of problem \ref{equ:kl} decreases. This also explains why `sinkhorn' requires such enormous iterations to find the optimal solution. In summary, we shall use `sinkhorn' to solve the entropic regularization of OT \ref{equ:kl} with moderate $\epsilon$. With large $\epsilon$, we shall use the original Sinkhorn's algorithm \ref{alg:sa} because it is faster in computation. `ADMM' seems to be suitable to arbitrary small $\epsilon$. 
